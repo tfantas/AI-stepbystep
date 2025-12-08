@@ -42,12 +42,15 @@
        - Method: GET
        - URL: https://www.youtube.com/feeds/videos.xml?channel_id=YOUR_CHANNEL_ID
        - Execute the node and verify you receive XML (RSS)
+    
+    ![HTTP Request](images/yt03-http-req.png)
 
     ### Convert XML to JSON
     4. Add an “XML” node directly after the HTTP Request.
        - Operation: XML to JSON
        - Execute the node
        - Inspect the output; you should see a `feed` object with an `entry` array containing videos and metadata (titles, descriptions, thumbnails, links)
+    ![XML Conversion](images/yt04-xml_convert.png)
 
     ### Transform and summarize with an AI Agent
     5. Add an “AI Agent” node after the XML node.
@@ -55,6 +58,8 @@
        - In the AI Agent’s prompt text, include a clear instruction and pass the `entry` array as context. For example:
 
        Your job is to take this data {{ $json.feed.entry.toJsonString() }} and format it in the required output format. Also, summarize the video description at the same time as it'll be used in a newsletter.
+    ![Agent Prompt](images/yt06-agent_prompt.png)
+
     7. Require a structured output:
        - Add/enable a “Structured Output Parser” in the AI Agent
        - JSON Example (paste this as the schema/example):
@@ -72,13 +77,15 @@
                 "thumbnail_url": "https://i1.ytimg.com/vi/ToW_AezocP0/hqdefault.jpg"
             }
         ]
+    ![Output Parser](images/yt07-output_parser.png)
     8. Attach the chat model:
        - Provider: OpenAI
        - Credentials: your OpenAI API key (create credentials in n8n if needed)
        - Model: gpt-4.1-mini (low cost, fast, sufficient for this task)
+    ![Add LLM](images/yt08-add_model.png)
     9. Execute the AI Agent node.
        - Verify the output is a clean JSON object with a `videos` array containing your simplified objects (title, description, link, thumbnail_url)
-
+    ![Test AI Node](images/yt09-agent_test.png)
     ### Generate the HTML newsletter
     10. Add a “Code” node (JavaScript) after the AI Agent.
     11. Paste the following code to build your HTML from the AI output:
@@ -126,12 +133,13 @@
         return [{ json: { newsletterHtml: html } }];
     12. Execute the Code node.
         - Confirm it returns a single newsletter item containing your newsletter HTML
-
+    ![HTML Template](images/yt10-html-template.png)
     ### Preview the HTML newsletter
     13. Add an “HTML” node after the Code node.
         - Operation: Generate HTML (or render from a string/template)
         - Template/Content: drag the `html` field from the Code node into the HTML node’s template input
         - Execute the HTML node to preview the rendered result inside n8n (the preview window is small, but you should see the content structure)
+    ![Preview HTML](images/yt11-preview-html.png)
 
     ### Send the newsletter email via Gmail
     14. Add a “Gmail” node after the HTML node.
@@ -145,6 +153,7 @@
     15. Execute the Gmail node.
         - Check the node output for a “sent” status
         - Verify the email arrives in your inbox; if it lands in spam initially, mark it as not spam
+    ![Mail That](images/yt15-mail_test.png)
 
     ---
 
