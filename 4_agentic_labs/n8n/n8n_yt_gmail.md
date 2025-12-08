@@ -86,6 +86,7 @@ Tip: The RSS URL format for a YouTube channel is:
             }
         ]
 
+
     ![Output Parser](images/yt07-output_parser.png)
 **Step 8:** Attach the chat model:
     - Provider: OpenAI
