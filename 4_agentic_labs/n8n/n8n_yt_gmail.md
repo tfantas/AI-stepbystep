@@ -164,6 +164,7 @@ Tip: The RSS URL format for a YouTube channel is:
     - Subject: e.g., “DevCentral YouTube Channel Newsletter”
     - Email Type: HTML
     - Message Body: drag the HTML output from the HTML node (e.g., the field containing rendered HTML) into the message body
+
 **Step 15:** Execute the Gmail node.
     - Check the node output for a “sent” status
     - Verify the email arrives in your inbox; if it lands in spam initially, mark it as not spam
