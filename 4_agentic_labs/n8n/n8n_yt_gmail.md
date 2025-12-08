@@ -37,14 +37,14 @@ Tip: The RSS URL format for a YouTube channel is:
 
 ### Create and trigger the workflow
 
-1. Create a new workflow in n8n.
-2. Choose how to trigger it:
+**Step 1:** Create a new workflow in n8n.
+**Step 2:** Choose how to trigger it:
     - For this lab, select “Manual Trigger” (easiest to test)
     - Optional: Add a Schedule Trigger (e.g., weekly) if you want automatic emails
 
 ### Fetch the YouTube RSS feed
 
-3. Add an “HTTP Request” node.
+**Step 3:** Add an “HTTP Request” node.
     - Method: GET
     - URL: <https://www.youtube.com/feeds/videos.xml?channel_id=YOUR_CHANNEL_ID>
     - Execute the node and verify you receive XML (RSS)
@@ -52,7 +52,7 @@ Tip: The RSS URL format for a YouTube channel is:
 
 ### Convert XML to JSON
 
-4. Add an “XML” node directly after the HTTP Request.
+**Step 4:** Add an “XML” node directly after the HTTP Request.
     - Operation: XML to JSON
     - Execute the node
     - Inspect the output; you should see a `feed` object with an `entry` array containing videos and metadata (titles, descriptions, thumbnails, links)
@@ -60,14 +60,14 @@ Tip: The RSS URL format for a YouTube channel is:
 
 ### Transform and summarize with an AI Agent
 
-5. Add an “AI Agent” node after the XML node.
-6. Configure the prompt:
+**Step 5:** Add an “AI Agent” node after the XML node.
+**Step 6:** Configure the prompt:
     - In the AI Agent’s prompt text, include a clear instruction and pass the `entry` array as context. For example:
 
     Your job is to take this data {{ $json.feed.entry.toJsonString() }} and format it in the required output format. Also, summarize the video description at the same time as it'll be used in a newsletter.
     ![Agent Prompt](images/yt06-agent_prompt.png)
 
-7. Require a structured output:
+**Step 7** Require a structured output:
     - Add/enable a “Structured Output Parser” in the AI Agent
     - JSON Example (paste this as the schema/example):
         [
@@ -85,19 +85,19 @@ Tip: The RSS URL format for a YouTube channel is:
             }
         ]
     ![Output Parser](images/yt07-output_parser.png)
-8. Attach the chat model:
+**Step 8:** Attach the chat model:
     - Provider: OpenAI
     - Credentials: your OpenAI API key (create credentials in n8n if needed)
     - Model: gpt-4.1-mini (low cost, fast, sufficient for this task)
     ![Add LLM](images/yt08-add_model.png)
-9. Execute the AI Agent node.
+**Step 9:** Execute the AI Agent node.
     - Verify the output is a clean JSON object with a `videos` array containing your simplified objects (title, description, link, thumbnail_url)
     ![Test AI Node](images/yt09-agent_test.png)
 
 ### Generate the HTML newsletter
 
-10. Add a “Code” node (JavaScript) after the AI Agent.
-11. Paste the following code to build your HTML from the AI output:
+**Step 10:** Add a “Code” node (JavaScript) after the AI Agent.
+**Step 11:** Paste the following code to build your HTML from the AI output:
 
         const videos = $input.first().json.output;
 
@@ -140,13 +140,13 @@ Tip: The RSS URL format for a YouTube channel is:
 
         // Return the full HTML for use in the next node
         return [{ json: { newsletterHtml: html } }];
-12. Execute the Code node.
+**Step 12:** Execute the Code node.
         - Confirm it returns a single newsletter item containing your newsletter HTML
     ![HTML Template](images/yt10-html-template.png)
 
 ### Preview the HTML newsletter
 
-13. Add an “HTML” node after the Code node.
+**Step 13:** Add an “HTML” node after the Code node.
     - Operation: Generate HTML (or render from a string/template)
     - Template/Content: drag the `html` field from the Code node into the HTML node’s template input
     - Execute the HTML node to preview the rendered result inside n8n (the preview window is small, but you should see the content structure)
@@ -154,7 +154,7 @@ Tip: The RSS URL format for a YouTube channel is:
 
 ### Send the newsletter email via Gmail
 
-14. Add a “Gmail” node after the HTML node.
+**Step 14:** Add a “Gmail” node after the HTML node.
     - Resource: Message
     - Operation: Send
     - Credentials: Select your Gmail OAuth credentials
@@ -162,7 +162,7 @@ Tip: The RSS URL format for a YouTube channel is:
     - Subject: e.g., “DevCentral YouTube Channel Newsletter”
     - Email Type: HTML
     - Message Body: drag the HTML output from the HTML node (e.g., the field containing rendered HTML) into the message body
-15. Execute the Gmail node.
+**Step 15:** Execute the Gmail node.
     - Check the node output for a “sent” status
     - Verify the email arrives in your inbox; if it lands in spam initially, mark it as not spam
     ![Mail That](images/yt15-mail_test.png)
@@ -183,19 +183,19 @@ Tip: The RSS URL format for a YouTube channel is:
 
 - HTTP Request returns no data
 
-    - Confirm the Channel ID is correct and the RSS URL format is: <https://www.youtube.com/feeds/videos.xml?channel_id=CHANNEL_ID>
+  - Confirm the Channel ID is correct and the RSS URL format is: <https://www.youtube.com/feeds/videos.xml?channel_id=CHANNEL_ID>
 
 - XML parsing issues
-    - Ensure the XML node is set to “XML to JSON”
-    - Verify the `entry` array exists under `feed`
+  - Ensure the XML node is set to “XML to JSON”
+  - Verify the `entry` array exists under `feed`
 - AI Agent output shape differs
-    - Double-check the prompt and the structured output schema; require the agent to return exactly the `videos` array
+  - Double-check the prompt and the structured output schema; require the agent to return exactly the `videos` array
 - Gmail OAuth errors
-    - Revisit n8n’s Gmail OAuth setup docs; verify OAuth consent screen and scopes
-    - Ensure you’ve connected the credentials and allowed n8n access
+  - Revisit n8n’s Gmail OAuth setup docs; verify OAuth consent screen and scopes
+  - Ensure you’ve connected the credentials and allowed n8n access
 - Emails going to spam
-    - Add proper subject lines, reduce external links, and use consistent sender
-    - Warm up sending and consider DKIM/SPF if sending from a custom domain
+  - Add proper subject lines, reduce external links, and use consistent sender
+  - Warm up sending and consider DKIM/SPF if sending from a custom domain
 
     ---
 

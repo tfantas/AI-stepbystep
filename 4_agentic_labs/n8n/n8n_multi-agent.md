@@ -6,7 +6,7 @@ By the end of this lab, you will have created a flow that can help organizations
 
 **Architecture Note:** This lab uses a two-server setup where models run on a dedicated LLM Server and n8n runs on a separate App Server to ensure n8n's performance isn't impacted by model inference.
 
-## Prerequisites':'
+## Prerequisites
 
 1. **[Ollama Basics lab](ollama_basics)** to have an understanding of the installation and use of Ollama.
 2. **[n8n Installation labs](n8n)**, as well. This will lay the groundwork for the basics.
