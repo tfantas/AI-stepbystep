@@ -70,7 +70,7 @@ Tip: The RSS URL format for a YouTube channel is:
 **Step 7** Require a structured output:
     - Add/enable a “Structured Output Parser” in the AI Agent
     - JSON Example (paste this as the schema/example):
-        '''json
+        ```json
         [
             {
                 "title": "Video Title",
@@ -85,7 +85,7 @@ Tip: The RSS URL format for a YouTube channel is:
                 "thumbnail_url": "https://i1.ytimg.com/vi/ToW_AezocP0/hqdefault.jpg"
             }
         ]
-        '''
+        ```
     ![Output Parser](images/yt07-output_parser.png)
 **Step 8:** Attach the chat model:
     - Provider: OpenAI
