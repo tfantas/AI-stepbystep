@@ -169,7 +169,8 @@ Tip: The RSS URL format for a YouTube channel is:
     - Verify the email arrives in your inbox; if it lands in spam initially, mark it as not spam
     ![Mail That](images/yt15-mail_test.png)
 
-    ---
+**Finished Flow:**
+![Final Flow](images/yt20-final.png)
 
 ## Optional Enhancements
 
@@ -178,8 +179,6 @@ Tip: The RSS URL format for a YouTube channel is:
 - Add logic to only include videos published since the last run (store last published time in a data store and filter)
 - Include a plain-text alternative for email clients that block HTML
 - Send to Slack or Teams instead of (or in addition to) email
-
-    ---
 
 ## Troubleshooting
 
@@ -199,14 +198,10 @@ Tip: The RSS URL format for a YouTube channel is:
   - Add proper subject lines, reduce external links, and use consistent sender
   - Warm up sending and consider DKIM/SPF if sending from a custom domain
 
-    ---
-
 ## Cost and Performance Notes
 
 - OpenAI usage for this workflow is minimal; a small model like gpt-4.1-mini typically costs pennies per run
 - Gmail sending is free for typical use with personal accounts (subject to provider limits)
-
-    ---
 
 ## Summary
 
