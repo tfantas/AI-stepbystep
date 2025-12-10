@@ -6,7 +6,7 @@ By the end of this lab, you will have created a flow that can help organizations
 
 **Architecture Note:** This lab uses a two-server setup where models run on a dedicated LLM Server and n8n runs on a separate App Server to ensure n8n's performance isn't impacted by model inference.
 
-## Prerequisites:
+## Prerequisites
 
 1. **[Ollama Basics lab](ollama_basics)** to have an understanding of the installation and use of Ollama.
 2. **[n8n Installation labs](n8n)**, as well. This will lay the groundwork for the basics.
@@ -19,22 +19,26 @@ By the end of this lab, you will have created a flow that can help organizations
 ### LLM Server Setup
 
 **Step 1:** Configure Docker to use NVIDIA runtime and restart the daemon:
+
 ```bash
 nvidia-ctk runtime configure --runtime=docker
 systemctl restart docker
 ```
 
 **Step 2:** Create a Docker volume for persistent data:
+
 ```bash
 docker volume create model_data
 ```
 
 **Step 3:** Install Ollama using Docker:
+
 ```bash
 docker run -d -v model_data:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
 ```
 
 **Step 4:** Pull the required models:
+
 ```bash
 docker exec ollama ollama pull deepseek-r1:1.5b
 docker exec ollama ollama pull llama3.2:3b
@@ -45,6 +49,7 @@ docker exec ollama ollama pull codellama
 ### N8N Server Setup
 
 **Step 5:** Install n8n on the App Server:
+
 ```bash
 docker volume create n8n_data
 docker run -it --rm --name n8n -p 5678:5678 -v n8n_data:/home/node/.n8n docker.n8n.io/n8nio/n8n
@@ -103,6 +108,7 @@ docker run -it --rm --name n8n -p 5678:5678 -v n8n_data:/home/node/.n8n docker.n
 ### Classifier Input Configuration
 
 **Step 14:** Configure the input parameter:
+
 - Select the **JSON view** in the left input panel
 - Click and hold the `chatInput` object in the JSON input view
 - Drag it into the **Text to Classify** box
@@ -112,6 +118,7 @@ docker run -it --rm --name n8n -p 5678:5678 -v n8n_data:/home/node/.n8n docker.n
 ### Define Categories
 
 **Step 15:** Add the Reasoning category:
+
 - Click the **Add Category** button
 - **Category:** `Reasoning`
 - **Description:** `If reasoning need is indicated by the chat message, this is the category to assign.`
@@ -119,6 +126,7 @@ docker run -it --rm --name n8n -p 5678:5678 -v n8n_data:/home/node/.n8n docker.n
 ![Reasoning Category](images/24-cat-reas.png)
 
 **Step 16:** Add the Coding category:
+
 - Click the **Add Category** button again
 - **Category:** `Coding`
 - **Description:** `If the chat message indicates a need to code or asks for help with computer languages and scripting languages like iRules, JSON or node.js, assign this category.`
@@ -128,6 +136,7 @@ docker run -it --rm --name n8n -p 5678:5678 -v n8n_data:/home/node/.n8n docker.n
 ### Configure Classifier Options
 
 **Step 17:** Enable multiple category matching:
+
 - Click the **Add Option** dropdown
 - Select **Allow Multiple Cases To Be True**
 - Enable the feature
@@ -135,6 +144,7 @@ docker run -it --rm --name n8n -p 5678:5678 -v n8n_data:/home/node/.n8n docker.n
 ![Multiple Cases](images/26-opt-mult.png)
 
 **Step 18:** Configure fallback behavior:
+
 - Click the **Add Option** dropdown
 - Select **When No Clear Match**
 - Choose **Output on Extra, Other Branch**
@@ -142,17 +152,19 @@ docker run -it --rm --name n8n -p 5678:5678 -v n8n_data:/home/node/.n8n docker.n
 ![Other Branch](images/27-opt-other.png)
 
 **Step 19:** Set the system prompt:
+
 - Click the **Add Option** dropdown
 - Select **System Prompt Template**
 - Enter the following:
 
-```
+```bash
 Please classify the text provided by the user into one of the following categories: {categories}, and use the provided formatting instructions below: If they explicitly ask for coding help, do not fail and classify the message as 'Coding'. If they explicitly ask for reasoning help, do not fail and classify the message as 'Reasoning'. Otherwise, send the {{ $json.chatInput }} on to the next agent.
 ```
 
 ![System Prompt](images/28-opt-sys.png)
 
 **Step 20:** Enable retry on failure:
+
 - Open **Settings** tab
 - Select **Retry On Fail**
 - Leave default settings
@@ -163,6 +175,7 @@ Please classify the text provided by the user into one of the following categori
 ### Attach Classifier Model
 
 **Step 21:** Add the classification model:
+
 - Click the **Model +** button at the bottom of the Text Classifier
 - Add an **Ollama model**
 - Use existing Ollama credentials or create new ones (replace 'localhost' with your LLM Server IP)
@@ -185,12 +198,14 @@ Please classify the text provided by the user into one of the following categori
 ### Reasoning Agent
 
 **Step 22:** Add the Reasoning Agent:
+
 - Click the **Reasoning +** at the right edge of the Text Classifier
 - Add an **AI Agent** object
 
 ![Agent Add](images/33-agent-add.png)
 
 **Step 23:** Configure Reasoning Agent settings:
+
 - Click the **Settings** tab
 - Select **Retry On Fail** (leave default settings)
 - Rename the node to: `Reasoning Agent`
@@ -199,6 +214,7 @@ Please classify the text provided by the user into one of the following categori
 ![Retry Fail](images/34-retry-fail.png)
 
 **Step 24:** Attach the reasoning model:
+
 - Click the **Chat Model +** at the bottom of the Reasoning Agent
 - Add an **Ollama model** using your credentials
 - Select model: `deepseek-r1:7b`
@@ -210,12 +226,14 @@ Please classify the text provided by the user into one of the following categori
 ### Coding Agent
 
 **Step 25:** Add the Coding Agent:
+
 - Click the **Coding +** at the right edge of the Text Classifier
 - Add an **AI Agent** object
 
 ![Add Code Agent](images/36-add-code.png)
 
 **Step 26:** Configure Coding Agent settings:
+
 - Click the **Settings** tab
 - Select **Retry On Fail** (leave default settings)
 - Rename the node to: `Coding Agent`
@@ -224,6 +242,7 @@ Please classify the text provided by the user into one of the following categori
 ![Retry Fail](images/37-retry-fail.png)
 
 **Step 27:** Attach the coding model:
+
 - Click the **Chat Model +** at the bottom of the Coding Agent
 - Add an **Ollama model** using your credentials
 - Select model: `codellama:latest`
@@ -237,12 +256,14 @@ Please classify the text provided by the user into one of the following categori
 ### Generalist Agent
 
 **Step 28:** Add the Generalist Agent:
+
 - Click the **Other +** at the right edge of the Text Classifier
 - Add an **AI Agent** object
 
 ![Add General Agent](images/40-add-gen.png)
 
 **Step 29:** Configure Generalist Agent settings:
+
 - Click the **Settings** tab
 - Select **Retry On Fail** (leave default settings)
 - Rename the node to: `Generalist Agent`
@@ -251,6 +272,7 @@ Please classify the text provided by the user into one of the following categori
 ![Retry Fail](images/41-retry-fail.png)
 
 **Step 30:** Attach the generalist model:
+
 - Click the **Chat Model +** at the bottom of the Generalist Agent
 - Add an **Ollama model** using your credentials
 - Select model: `deepseek-r1:1.5b`
@@ -266,6 +288,7 @@ Please classify the text provided by the user into one of the following categori
 ## Testing and Experimentation
 
 **Step 31:** Test your workflow:
+
 - Open your n8n chat interface
 - Enter various prompts (note: responses may take some time)
 - Click on workflow objects to observe data flow between steps
@@ -291,6 +314,7 @@ Please classify the text provided by the user into one of the following categori
 ## Summary
 
 You now have a functional multi-model workflow that:
+
 - Automatically classifies user prompts
 - Routes requests to specialized models
 - Optimizes AI spend by using appropriately-sized models
